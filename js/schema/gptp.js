@@ -123,7 +123,7 @@
       required: true,
       width: 'narrow',
       help:
-        'priority1 of the DUT’s clock in this domain, as advertised in Announce messages. Lower values win the best master selection. IEEE 802.1AS defaults: 246 for network infrastructure devices, 248 for other devices, 250 for portable devices, 255 if the device is not grandmaster-capable.',
+        'priority1 of the DUT’s clock in this domain, as advertised in Announce messages. Lower values win the best master selection. IEEE 802.1AS Table 8-2 defaults: 246 for network infrastructure devices, 248 for other devices, 250 for portable devices, 255 if the device is not grandmaster-capable.',
     },
     {
       key: 'priority2',
@@ -135,7 +135,7 @@
       required: true,
       width: 'narrow',
       help:
-        'priority2 of the DUT’s clock, as advertised in Announce messages. It is compared after priority1 and the clock quality in the best master selection. IEEE 802.1AS default: 248.',
+        'priority2 of the DUT’s clock, as advertised in Announce messages. It is compared after priority1 and the clock quality in the best master selection. IEEE 802.1AS Clause 8.6.2.5 priority2 default: 248.',
     },
     {
       key: 'time_source',
@@ -144,7 +144,7 @@
       options: TIME_SOURCES,
       required: true,
       help:
-        'timeSource the DUT advertises in Announce messages (IEEE 1588 enumeration). A device running from its own crystal uses 160 (0xA0, internal oscillator). The file stores the decimal number because JSON has no hex notation.',
+        'timeSource the DUT advertises in Announce messages. IEEE 1588-2008 Table 7 defines 160 (0xA0) for Internal Oscillator.',
     },
     {
       key: 'is_gm_capable',
