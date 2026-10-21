@@ -6,6 +6,7 @@
 
   const CONFORMANCE_2011 = 'IEEE802.1AS-2011';
   const CONFORMANCE_2020 = 'IEEE802.1AS-2020';
+  const is2020 = (ctx) => ctx.get('gptp_config.conformance') === CONFORMANCE_2020;
 
   const TIME_SOURCES = [
     { value: 0x10, label: '16 (0x10) Atomic clock' },
@@ -46,7 +47,7 @@
         failMessage: 'Enter a valid 12-digit MAC address for this port first.',
       },
       help:
-        'clockIdentity the DUT sends in its gPTP messages (EUI-64, 16 hex digits). Together with the port number it forms the port identity. Many devices derive it from a MAC address by inserting FFFE in the middle (001B9202CC8D becomes 001B92FFFE02CC8D). Check it against a capture of the DUT’s Announce or Pdelay messages.',
+        'clockIdentity the DUT sends in its gPTP messages (EUI-64, 16 hex digits). Together with the port number it forms the port identity. IEEE 802.1AS-2011 - subclause 8.5.2.2.1 defines mapping rules to convert EUI-48  to EUI-64. It mandates to put FFFE in the middle of MAC address. Check it against a capture of the DUT’s Announce or Pdelay messages.',
     },
     {
       key: 'mac_address',
@@ -110,7 +111,7 @@
       required: true,
       width: 'narrow',
       help:
-        'gPTP domain number (domainNumber). An entry for domain 0 is mandatory. Additional domains are an IEEE 802.1AS-2020 feature and also need the CMLDS ports.',
+        'gPTP domain number (domainNumber). An entry for domain 0 is mandatory. IEEE 802.1AS-2011 supports domain 0 only; additional domains require IEEE 802.1AS-2020 and the CMLDS ports.',
     },
     {
       key: 'priority1',
@@ -150,7 +151,12 @@
       label: 'Grandmaster-capable',
       type: 'bool',
       required: true,
-      help: 'Whether the DUT can become grandmaster in this domain. If it cannot, priority1 must be 255.',
+      onChange: (value, domain) => {
+        if (value === false) domain.priority1 = 255;
+        else if (Number(domain.priority1) === 255) domain.priority1 = 248;
+      },
+      help:
+        'Whether the DUT can become grandmaster in this domain. If it cannot, priority1 must be 255. Turning this off sets priority1 to 255; turning it on again sets 248.',
     },
     portList({
       key: 'ports',
@@ -210,11 +216,11 @@
         key: 'is_bridge',
         label: 'Time-aware bridge',
         type: 'bool',
-        required: true, // always written, because the tool's default can differ from the file default
+        required: true,
         group: 'Device',
-        default: (ctx) => ctx.profiles.has('bridge'),
+        default: false,
         help:
-          'Turn on if the DUT is a time-aware bridge, which relays gPTP time from one port to its other ports. Endstations use false, including endstations with two interfaces such as Milan redundant devices. The file default is false; this tool preselects true while the Bridge profile is selected.',
+          'Turn on if the DUT is a time-aware bridge, which relays gPTP time from one port to its other ports. Endstations use false. A redundant Milan endstation (Test both interfaces on) is never a bridge, even though it has two interfaces.',
       },
       {
         key: 'domains',
@@ -227,17 +233,20 @@
         newItem: newDomain,
         itemTitle: (d) => 'Domain ' + (d.number ?? '?'),
         addLabel: 'Add domain',
+        // Only IEEE 802.1AS-2020 supports more than one domain.
+        canAdd: (ctx, domains) => domains.length === 0 || is2020(ctx),
         help:
-          'The gPTP domains of the DUT with the clock attributes it advertises and the ports taking part in each domain. A new domain copies the port numbers and MAC addresses of the first domain.',
+          'The gPTP domains of the DUT with the clock attributes it advertises and the ports taking part in each domain. IEEE 802.1AS-2011 supports domain 0 only. With IEEE 802.1AS-2020 you can add further domains; a new domain copies the port numbers and MAC addresses of the first domain.',
       },
       portList({
         key: 'CMLDS.ports',
         label: 'CMLDS ports',
         group: 'Device',
+        when: is2020, // CMLDS exists only in IEEE 802.1AS-2020
         default: () => [],
         addLabel: 'Add CMLDS port',
         help:
-          'Only for devices using the Common Mean Link Delay Service (CMLDS) of IEEE 802.1AS-2020. Required when the DUT supports more than one domain. CMLDS has its own clock identity, which usually differs from the clock identity of the domains. Leave the list empty otherwise; the CMLDS section is then left out of the file.',
+          'For devices using the Common Mean Link Delay Service (CMLDS) of IEEE 802.1AS-2020. Required when the DUT supports more than one domain. CMLDS has its own clock identity, which usually differs from the clock identity of the domains. Leave the list empty otherwise; the CMLDS section is then left out of the file.',
       }),
 
       /* ---- message behavior ---- */
@@ -248,7 +257,7 @@
         default: false,
         group: 'Message behavior',
         help:
-          'Turn on if the DUT sends one-step Sync messages, carrying the timestamp in the Sync message itself without a Follow_Up. Most gPTP devices use two-step.',
+          'Turn on if the DUT sends one-step Sync messages, carrying the timestamp in the Sync message itself without a Follow_Up. Most gPTP devices use two-step (off).',
       },
       {
         key: 'sends_signaling_messages',
@@ -404,14 +413,11 @@
         if (dup.length) {
           issues.push({ path: 'gptp_config.domains', message: 'Domain number ' + dup.join(', ') + ' is used more than once.' });
         }
-        if (domains.length > 1 && !cmlds.length) {
+        if (conformance === CONFORMANCE_2011 && numbers.some((n) => n !== 0)) {
+          issues.push({ path: 'gptp_config.domains', message: 'IEEE 802.1AS-2011 supports domain 0 only. Remove the other domains.' });
+        }
+        if (conformance === CONFORMANCE_2020 && domains.length > 1 && !cmlds.length) {
           issues.push({ path: 'gptp_config.CMLDS.ports', message: 'More than one domain is configured, so the CMLDS ports must be listed.' });
-        }
-        if (domains.length > 1 && conformance === CONFORMANCE_2011) {
-          issues.push({ level: 'warning', path: 'gptp_config.domains', message: 'Multiple domains are an IEEE 802.1AS-2020 feature, but conformance is set to 2011.' });
-        }
-        if (cmlds.length && conformance === CONFORMANCE_2011) {
-          issues.push({ level: 'warning', path: 'gptp_config.CMLDS.ports', message: 'CMLDS is defined in IEEE 802.1AS-2020, but conformance is set to 2011.' });
         }
         domains.forEach((d, i) => {
           const path = 'gptp_config.domains.' + i + '.priority1';

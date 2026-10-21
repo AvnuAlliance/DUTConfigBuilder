@@ -1,8 +1,10 @@
 /*
  * Field renderers. renderField(field, binding) returns { node, refresh }.
  * The binding decouples a control from where its value lives:
- *   { path, get(), set(v), relevant(), issuesFor(path), scope,
- *     isTouched?(), reset?(), defaultValue?() }
+ *   { path, ctx, get(), set(v), relevant(), issuesFor(path), scope,
+ *     visible?(), isTouched?(), reset?(), defaultValue?() }
+ * relevant() false → greyed out (profile not selected).
+ * visible()  false → hidden (field.when condition not met).
  * Top-level fields bind to the store; list item fields bind to the item.
  * To add a new field type, add a case to buildControl().
  */
@@ -208,6 +210,7 @@
         );
 
     function refresh() {
+      node.hidden = b.visible ? !b.visible() : false;
       const active = b.relevant();
       control.setDisabled(!active);
       if (actionBtn) actionBtn.disabled = !active;
@@ -233,6 +236,8 @@
     const errors = el('div', { class: 'errors' });
     let childRefreshers = [];
     let buttons = [];
+    let dupButtons = [];
+    const canAdd = () => !field.canAdd || field.canAdd(b.ctx, arr());
 
     const arr = () => (Array.isArray(b.get()) ? b.get() : []);
     const commit = (a) => {
@@ -290,17 +295,22 @@
       const dup = el('button', { type: 'button', class: 'icon-btn', title: 'Duplicate', 'aria-label': 'Duplicate', onclick: () => { a.splice(i + 1, 0, util.clone(item)); commit(a); } }, '⧉');
       const del = el('button', { type: 'button', class: 'icon-btn', title: 'Remove', 'aria-label': 'Remove', onclick: () => { a.splice(i, 1); commit(a); } }, '✕');
       buttons.push(dup, del);
+      dupButtons.push(dup);
 
       const grid = el('div', { class: 'item-grid' });
       const nested = el('div', { class: 'item-nested' });
       for (const sub of field.itemFields) {
         const sb = {
           path: b.path + '.' + i + '.' + sub.key,
+          ctx: b.ctx,
           get: () => item[sub.key],
           set: (v) => {
             item[sub.key] = v;
+            // onChange may adjust sibling values of the same item (e.g. priority1).
+            if (sub.onChange) sub.onChange(v, item, b.ctx);
             b.set(arr());
           },
+          visible: sub.when ? () => sub.when(b.ctx, item) : undefined,
           scope: item,
           relevant: b.relevant,
           issuesFor: b.issuesFor,
@@ -323,15 +333,20 @@
     function rebuild() {
       childRefreshers = [];
       buttons = [];
+      dupButtons = [];
       const a = arr();
       items.replaceChildren(...a.map((item, i) => renderItem(item, i, a)));
       items.hidden = a.length === 0;
     }
 
     function refresh() {
+      node.hidden = b.visible ? !b.visible() : false;
       const active = b.relevant();
+      const addable = canAdd();
       addBtn.disabled = !active;
+      addBtn.hidden = !addable;
       buttons.forEach((x) => (x.disabled = !active));
+      dupButtons.forEach((x) => (x.hidden = !addable));
       childRefreshers.forEach((fn) => fn());
       const list = b.issuesFor(b.path);
       errors.replaceChildren(...messages(list));

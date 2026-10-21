@@ -33,6 +33,7 @@
     const path = DCT.fieldPath(section, field);
     return {
       path,
+      ctx: store.ctx,
       scope: store.ctx,
       get: () => store.get(path),
       set: (v) => store.set(path, v),
@@ -40,6 +41,7 @@
       reset: field.type === 'list' ? null : () => store.resetField(path),
       defaultValue: () => (field.default === undefined ? undefined : DCT.defaultOf(field, store.ctx)),
       relevant: () => DCT.isFieldRelevant(section, field, store.ctx),
+      visible: field.when ? () => field.when(store.ctx) : undefined,
       issuesFor,
     };
   }
@@ -234,7 +236,6 @@
     const all = DCT.schema.profiles.every((p) => store.hasProfile(p.id));
     store.setAllProfiles(!all);
   });
-
 
   $('btn-reset').addEventListener('click', () => {
     if (!confirm('Clear all settings and start over?')) return;

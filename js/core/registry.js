@@ -8,6 +8,9 @@
  *   types:  text | hex | number | bool | select | multi | list
  *   key may be a dotted path relative to the section ("CMLDS.ports").
  *   default may be a value or a function (ctx) => value.
+ *   when: (ctx) => bool            hides the field and leaves it out of the file
+ *   onChange: (value, item, ctx)   list item fields only; may adjust sibling values
+ *   canAdd: (ctx, items) => bool   list fields only; shows/hides Add and Duplicate
  * Rule:     (ctx) => [{ level?: 'error'|'warning', path, message }]
  */
 (function () {
