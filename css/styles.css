@@ -365,6 +365,8 @@ input:disabled, select:disabled { background: var(--surface-2); }
 .item.row .item-grid { order: 1; flex: 1; }
 .item.row .item-actions { order: 2; align-self: center; }
 .list-items:has(> .item.row) { gap: 6px; }
+/* port rows: MAC address on its own line above port number and clock identity */
+.item.row .item-grid > .field.compact[data-path$=".mac_address"] { order: -1; flex-basis: 100%; }
 
 @media (max-width: 760px) {
   .item.row { flex-wrap: wrap; }
