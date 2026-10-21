@@ -8,7 +8,7 @@
     order: 10,
     title: 'General',
     path: '',
-    profiles: ['milan', 'gptp', 'bridge'],
+    profiles: ['milan', 'gptp', 'switch'],
     description:
       'Identifies the device under test and tells the test system how long to wait when it switches the DUT on and off via the power block.',
     fields: [

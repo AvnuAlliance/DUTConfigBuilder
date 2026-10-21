@@ -20,8 +20,8 @@
   });
 
   DCT.defineProfile({
-    id: 'bridge',
-    label: 'Bridge',
-    description: 'Milan-AVB Bridge test cases',
+    id: 'switch',
+    label: 'Switch',
+    description: 'Milan-AVB Switch Certification Program',
   });
 })();

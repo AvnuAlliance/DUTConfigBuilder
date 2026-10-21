@@ -18,7 +18,7 @@
     title: 'Debug options',
     short: 'Debug',
     path: '',
-    profiles: ['milan', 'gptp', 'bridge'],
+    profiles: ['milan', 'gptp', 'switch'],
     variant: 'danger',
     description: 'For debugging only. Selecting any option here invalidates the certification result.',
     fields: [

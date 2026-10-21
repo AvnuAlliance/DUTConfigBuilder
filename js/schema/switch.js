@@ -4,23 +4,23 @@
   const DCT = window.DCT;
 
   DCT.defineSection({
-    id: 'bridge',
+    id: 'switch',
     order: 40,
-    title: 'Bridge (IEEE 802.1BA)',
-    short: 'Bridge',
+    title: 'Switch (IEEE 802.1BA)',
+    short: 'Switch',
     path: 'dot1ba_config',
-    profiles: ['bridge'],
+    profiles: ['switch'],
     description: 'Written to the dot1ba_config section. Required for testing switches.',
     fields: [
       {
         key: 'bridge_mac',
-        label: 'Bridge MAC address',
+        label: 'Switch MAC address',
         type: 'hex',
         length: 12,
         required: true,
         placeholder: '3CC0C60002C6',
         help:
-          'Base MAC address of the switch (12 hex digits). This is the address of the bridge itself, not of an individual port. Separators are removed in the output.',
+          'Base MAC address of the switch (12 hex digits). This is the address of the switch itself, not of an individual port. Separators are removed in the output.',
       },
       {
         key: 'reg_mvrp_not_forwarding',
