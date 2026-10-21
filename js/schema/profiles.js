@@ -9,7 +9,7 @@
 
   DCT.defineProfile({
     id: 'milan',
-    label: 'Milan',
+    label: 'Endstation',
     description: 'Milan-AVB Endstation Certification Program',
   });
 
