@@ -103,6 +103,10 @@
         delete state.values[path];
         emit();
       },
+      resetFields(paths) {
+        paths.forEach((p) => delete state.values[p]);
+        emit();
+      },
 
       reset() {
         state.profiles.clear();

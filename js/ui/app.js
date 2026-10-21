@@ -78,6 +78,29 @@
     return section.profiles.map((id) => el('span', { class: 'tag' }, DCT.profileLabel(id)));
   }
 
+  /** "Reset to defaults" for a section; lists and fields without a default are kept. */
+  function resetButton(section) {
+    const targets = section.fields
+      .filter((f) => f.type !== 'list' && f.default !== undefined)
+      .map((f) => ({ field: f, path: DCT.fieldPath(section, f) }));
+    if (!targets.length) return null;
+    const btn = el(
+      'button',
+      { type: 'button', class: 'reset-link', onclick: () => store.resetFields(targets.map((t) => t.path)) },
+      'Reset to defaults'
+    );
+    refreshers.push(() => {
+      const changed = targets.some(
+        (t) => store.isTouched(t.path) && !util.equal(store.get(t.path), DCT.defaultOf(t.field, store.ctx))
+      );
+      btn.disabled = !changed || !DCT.isSectionRelevant(section, store.ctx);
+      btn.title = changed
+        ? 'Set all settings in this section back to their default values'
+        : 'All settings in this section have their default values';
+    });
+    return btn;
+  }
+
   function renderSection(section) {
     const body = el('div', { class: 'section-body' });
     let group = null;
@@ -126,7 +149,12 @@
     const node = el(
       'section',
       { class: 'section' + (section.variant ? ' ' + section.variant : ''), id: 'sec-' + section.id },
-      el('header', { class: 'section-head' }, toggle, el('p', { class: 'section-desc' }, section.description)),
+      el(
+        'header',
+        { class: 'section-head' },
+        toggle,
+        el('div', { class: 'section-sub' }, el('p', { class: 'section-desc' }, section.description), resetButton(section))
+      ),
       note,
       body
     );
