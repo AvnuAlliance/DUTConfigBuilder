@@ -166,6 +166,7 @@
       node.classList.toggle('collapsed', isCollapsed);
       toggle.setAttribute('aria-expanded', String(!isCollapsed));
       note.hidden = on;
+      node.style.order = String((on ? 0 : 1000) + (section.order ?? 0));
     });
     return node;
   }
