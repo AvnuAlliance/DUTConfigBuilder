@@ -10,7 +10,7 @@
     path: '',
     profiles: ['milan'],
     description:
-      'Used by the Milan test cases, which find and control the DUT through ATDECC.',
+      'Run Milan-AVB Endstation and Bridged Endstation Tests',
     fields: [
       {
         key: 'entity_id',

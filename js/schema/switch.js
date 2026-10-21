@@ -10,7 +10,7 @@
     short: 'Switch',
     path: 'dot1ba_config',
     profiles: ['switch'],
-    description: 'Written to the dot1ba_config section. Required for testing switches.',
+    description: 'Run Milan-AVB Switch Tests.',
     fields: [
       {
         key: 'bridge_mac',

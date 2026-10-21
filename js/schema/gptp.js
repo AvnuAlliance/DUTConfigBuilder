@@ -196,7 +196,7 @@
     short: 'gPTP',
     path: 'gptp_config',
     profiles: ['gptp'],
-    description: 'Written to the gptp_config section. Required to run the IEEE 802.1AS test cases.',
+    description: 'Run gPTP Tests.',
     fields: [
       /* ---- identity ---- */
       {
