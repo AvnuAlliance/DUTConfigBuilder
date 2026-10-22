@@ -6,6 +6,7 @@
   <title>DUT Config Builder</title>
   <link rel="icon" href="img/icon.ico">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/report.css">
 </head>
 <body>
   <header class="topbar">
@@ -48,6 +49,7 @@
         <pre id="preview" class="preview"></pre>
         <div class="output-actions">
           <button type="button" class="btn ghost-dark" id="btn-copy">Copy</button>
+          <button type="button" class="btn ghost-dark" id="btn-pdf">Export PDF</button>
           <button type="button" class="btn primary" id="btn-download">Download JSON</button>
         </div>
       </div>
@@ -55,6 +57,7 @@
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="report"></div>
 
   <!-- Core helpers -->
   <script src="js/core/util.js"></script>
@@ -76,6 +79,7 @@
 
   <!-- UI -->
   <script src="js/ui/fields.js"></script>
+  <script src="js/ui/report.js"></script>
   <script src="js/ui/app.js"></script>
 </body>
 </html>

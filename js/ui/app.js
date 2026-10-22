@@ -190,6 +190,7 @@
     const ready = anyProfile();
     $('btn-download').disabled = !ready;
     $('btn-copy').disabled = !ready;
+    $('btn-pdf').disabled = !ready;
 
     if (!ready) {
       currentJson = '';
@@ -315,6 +316,13 @@
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     DCT.ui.toast('Downloaded ' + fileName + '.');
+  });
+
+  $('btn-pdf').addEventListener('click', () => {
+    const errs = issues.filter((i) => i.level === 'error').length;
+    if (errs && !confirm('The configuration still has ' + errs + (errs === 1 ? ' error' : ' errors') + '. Export the PDF anyway?')) return;
+    const base = String(store.get('name') || 'dut').trim().replace(/[^\w.-]+/g, '_') || 'dut';
+    DCT.ui.exportPdf(store, issues, base);
   });
 
   build();
