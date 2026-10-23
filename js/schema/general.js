@@ -54,6 +54,15 @@
         help:
           'Ethernet link speeds the DUT supports on the tested interfaces, written to the file as a list of numbers in Mbps, for example [100, 1000].',
       },
+      {
+        key: 'redundant_device',
+        label: 'Redundant device',
+        type: 'bool',
+        required: true, // always written, so every file states it explicitly
+        default: false,
+        help:
+          'Turn on if the DUT is a redundant device with a primary and a secondary interface.',
+      },
     ],
   });
 })();

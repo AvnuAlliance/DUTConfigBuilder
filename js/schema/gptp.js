@@ -196,7 +196,7 @@
     short: 'gPTP',
     path: 'gptp_config',
     profiles: ['gptp'],
-    description: 'Run gPTP Tests.',
+    description: 'Written to the gptp_config section. Required to run the IEEE 802.1AS test cases.',
     fields: [
       /* ---- identity ---- */
       {
@@ -214,13 +214,13 @@
       },
       {
         key: 'is_bridge',
-        label: 'Time-aware bridge',
+        label: 'Time-aware switch',
         type: 'bool',
         required: true,
         group: 'Device',
         default: false,
         help:
-          'Turn on if the DUT is a time-aware bridge, which relays gPTP time from one port to its other ports. Endstations use false. A redundant Milan endstation (Test both interfaces on) is never a bridge, even though it has two interfaces.',
+          'Turn on if the DUT is a time-aware switch, which relays gPTP time from one port to its other ports. Endstations use false. A redundant device (see the general settings) is an endstation, even though it has two interfaces.',
       },
       {
         key: 'domains',
@@ -429,6 +429,19 @@
           }
         });
         return issues;
+      },
+
+      function redundantBridgeRule(ctx) {
+        if (ctx.get('redundant_device') === true && ctx.get('gptp_config.is_bridge') === true) {
+          return [
+            {
+              level: 'warning',
+              path: 'gptp_config.is_bridge',
+              message: 'Redundant device is on in the general settings, so the DUT is an endstation and cannot be a time-aware bridge. Turn one of them off.',
+            },
+          ];
+        }
+        return [];
       },
 
       function signalingRule(ctx) {
