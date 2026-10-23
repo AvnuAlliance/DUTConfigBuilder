@@ -377,7 +377,7 @@
         default: true,
         group: 'Avnu requirements',
         help:
-          'Avnu requirement PTP-5: the DUT stops sending Pdelay_Req when, for allowedLostResponses Pdelay_Req messages in a row, it receives more than one Pdelay_Resp from different clock identities. It resumes after 5 minutes, after a link toggle, or when portOper or ptpPortEnabled toggles. Default on.',
+          'PICS item AvnuPTP-5, tested in PACT-gPTP-1.2-com-18.1. The DUT stops sending Pdelay_Req when, for allowedLostResponses successive Pdelay_Req messages, it receives more than one Pdelay_Resp from different clock identities, for example because a device without gPTP support sits between the DUT and its neighbor. Transmission resumes after 5 minutes, after a link toggle, or when portOper or ptpPortEnabled toggles. The test checks that the DUT stops after allowedLostResponses + 1 consecutive multiple responses, does not stop after only one or two, and resumes after about 5 minutes (±0.5 min) or a link toggle. Avnu requires this for endstations; for bridges it is optional but recommended. Default on.',
       },
       {
         key: 'sync_locked',
@@ -385,8 +385,9 @@
         type: 'bool',
         default: false,
         group: 'Avnu requirements',
+        when: is2020,
         help:
-          'IEEE 802.1AS-2020 (bridges): does the PTP instance act as a PTP relay instance on two or more PTP ports? Avnu requirement PTP-29 asks whether the implementation supports this PTP relay function. Default off.',
+          'Bridges only (PICS items BRDG and Avnu PTP Bridge: does the implementation support the PTP Relay function?). Turn on if the DUT, as an IEEE 802.1AS-2020 PTP Relay Instance, operates sync-locked (IEEE 802.1AS-2020, 10.2.5.15): the sync interval of its ingress and egress ports is the same, and it forwards each Sync on its timeTransmitter ports as soon as the Follow_Up arrives on its timeReceiver port. This selects the expected behavior in PACT-gPTP-1.2-br-224.1: when Sync messages stop arriving, a sync-locked bridge stops sending Sync immediately, otherwise it keeps sending until syncReceiptTimeout expires. Leave off for endstations and IEEE 802.1AS-2011 bridges. Default off.',
       },
       {
         key: 'supports_subnano_timestamp',
