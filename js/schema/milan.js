@@ -24,12 +24,12 @@
       },
       {
         key: 'test_two_ports',
-        label: 'Redundant device',
+        label: 'Test both interfaces',
         type: 'bool',
         required: true,
         default: false,
         help:
-          'Turn on if the DUT has a redundant network interface with a primary and secondary interface.',
+          'Enable to run the Milan tests on both network interfaces of the DUT, for example the primary and secondary interface of a redundant device, or two primary interfaces as on the DS20. Disable to test only one interface.',
       },
       {
         key: 'discovery_timeout',

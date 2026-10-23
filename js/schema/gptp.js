@@ -431,21 +431,6 @@
         return issues;
       },
 
-      function bridgeRule(ctx) {
-        const isBridge = ctx.get('gptp_config.is_bridge');
-        const redundantMilanDevice = ctx.profiles.has('milan') && ctx.get('test_two_ports') === true;
-        if (isBridge && redundantMilanDevice) {
-          return [
-            {
-              level: 'warning',
-              path: 'gptp_config.is_bridge',
-              message: 'Test both interfaces is on in the Milan settings, so the DUT is a redundant endstation and cannot be a time-aware bridge. Turn one of them off.',
-            },
-          ];
-        }
-        return [];
-      },
-
       function signalingRule(ctx) {
         if (ctx.get('gptp_config.sends_signaling_messages') !== false) return [];
         return ['sends_message_interval_request_tlv', 'sends_gptp_capable_message_interval_request_tlv']
